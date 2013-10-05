@@ -13,8 +13,8 @@
     <tags>Abbyy Cloud Ocr Sdk</tags>
   </metadata>
   <files>
-	 <file src="$bin$\v4.0\AbbyyOnlineSdk.dll" target="lib\net40" />
-	 <file src="$bin$\v4.5\AbbyyOnlineSdk.dll" target="lib\net45" />
-	 <file src="$bin$\v4.5.1\AbbyyOnlineSdk.dll" target="lib\net451" />
+	 <file src="$outputfolder$\v4.0\AbbyyOnlineSdk.dll" target="lib\net40" />
+	 <file src="$outputfolder$\v4.5\AbbyyOnlineSdk.dll" target="lib\net45" />
+	 <file src="$outputfolder$\v4.5.1\AbbyyOnlineSdk.dll" target="lib\net451" />
   </files>
 </package>
