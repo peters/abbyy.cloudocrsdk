@@ -45,6 +45,7 @@ $platforms | ForEach-Object {
        -target $target `
        -targetFrameworks $targetFrameworks `
        -platform $platform `
+	   -verbosity $verbosity `
        -version $packageVersion
 
     MyGet-Build-Nupkg -rootFolder $rootFolder `
