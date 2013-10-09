@@ -492,6 +492,29 @@ namespace Abbyy.CloudOcrSdk
             }
         }
 
+        /// <summary>
+        /// Download task that has finished processing and save it to a stream
+        /// </summary>
+        /// <param name="task">Id of a task</param>
+        /// <param name="outputFile">Output stream</param>
+        public Stream DownloadUrl(string url, Stream outputStream)
+        {
+            try
+            {
+                WebRequest request = WebRequest.Create(url);
+                setupGetRequest(url, request);
+
+                using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
+                {
+                    return result.GetResponseStream();
+                }
+            }
+            catch (System.Net.WebException e)
+            {
+                throw new ProcessingErrorException(e.Message, e);
+            }
+        }
+
         public Task GetTaskStatus(TaskId task)
         {
             string url = String.Format("{0}/getTaskStatus?taskId={1}", ServerUrl,
