@@ -635,21 +635,24 @@ namespace Abbyy.CloudOcrSdk
             request.Method = "GET";
         }
 
-        private void writeFileToRequest( string filePath, WebRequest request )
-		{
-			using( BinaryReader reader = new BinaryReader( File.OpenRead( filePath ) ) ) {
-				request.ContentLength = reader.BaseStream.Length;
-				using( Stream stream = request.GetRequestStream() ) {
-					byte[] buf = new byte[reader.BaseStream.Length];
-					while( true ) {
-						int bytesRead = reader.Read( buf, 0, buf.Length );
-						if( bytesRead == 0 ) {
-							break;
-						}
-						stream.Write( buf, 0, bytesRead );
-					}
-				}
-			}
+        private void writeFileToRequest(string filePath, WebRequest request)
+        {
+            writeFileToRequest(File.ReadAllBytes(filePath), request);
+        }
+
+        private void writeFileToRequest(byte[] content, WebRequest request)
+        {
+            using (Stream stream = request.GetRequestStream())
+            {
+                stream.Write(content, 0, content.Length);
+            }
+        }
+
+        private void writeFileToRequest(Stream stream, WebRequest request)
+        {
+            byte[] bytes = new byte[stream.Length];
+            stream.Write(bytes, 0, (int)stream.Length);
+            writeFileToRequest(bytes, request);
         }
 
         #endregion
