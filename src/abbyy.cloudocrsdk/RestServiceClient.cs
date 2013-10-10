@@ -596,7 +596,7 @@ namespace Abbyy.CloudOcrSdk
         /// return result as stream
         /// </summary>
         /// <param name="task">Id of a task</param>
-        public Stream DownloadResult(Task task)
+        public MemoryStream DownloadResult(Task task)
         {
             if (task.Status != TaskStatus.Completed)
             {
@@ -618,7 +618,7 @@ namespace Abbyy.CloudOcrSdk
 
                 using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
                 {
-                    return result.GetResponseStream();
+                    return new MemoryStream(toByteArray(result.GetResponseStream()));
                 }
 
             }
@@ -675,7 +675,7 @@ namespace Abbyy.CloudOcrSdk
             }
         }
 
-        public Stream DownloadUrl(string url)
+        public MemoryStream DownloadUrl(string url)
         {
             try
             {
@@ -684,7 +684,7 @@ namespace Abbyy.CloudOcrSdk
 
                 using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
                 {
-                    return result.GetResponseStream();
+                    return new MemoryStream(toByteArray(result.GetResponseStream()));
                 }
             }
             catch (System.Net.WebException e)
