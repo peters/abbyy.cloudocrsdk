@@ -218,6 +218,18 @@ namespace Abbyy.CloudOcrSdk
         /// <exception cref="ProcessingErrorException">thrown when something goes wrong</exception>
         public Task ProcessImage(Stream inputStream, ProcessingSettings settings)
         {
+            return ProcessImage(toByteArray(inputStream), settings);
+        }
+
+        /// <summary>
+        /// Upload a file to service synchronously and start processing
+        /// </summary>
+        /// <param name="input">Byte array to process</param>
+        /// <param name="settings">Language and output format</param>
+        /// <returns>Id of the task. Check task status to see if you have enough units to process the task</returns>
+        /// <exception cref="ProcessingErrorException">thrown when something goes wrong</exception>
+        public Task ProcessImage(byte[] input, ProcessingSettings settings)
+        {
             string url = String.Format("{0}/processImage?{1}", ServerUrl, settings.AsUrlParams);
 
             if (!String.IsNullOrEmpty(settings.Description))
@@ -230,7 +242,7 @@ namespace Abbyy.CloudOcrSdk
                 // Build post request
                 WebRequest request = WebRequest.Create(url);
                 setupPostRequest(url, request);
-                writeFileToRequest(inputStream, request);
+                writeFileToRequest(input, request);
 
                 XDocument response = performRequest(request);
                 Task task = ServerXml.GetTaskStatus(response);
@@ -295,16 +307,38 @@ namespace Abbyy.CloudOcrSdk
         /// <param name="filePath">Path to an image to process</param>
         /// <param name="taskToAddFile">Id of multipage document. If null, a new document is created</param>
         /// <returns>Id of document to which image was added</returns>
-        public Task UploadAndAddFileToTask(string filePath, TaskId taskToAddFile )
+        public Task UploadAndAddFileToTask(string filePath, TaskId taskToAddFile)
         {
-            string url = String.Format("{0}/submitImage", ServerUrl );
+            return UploadAndAddFileToTask(File.ReadAllBytes(filePath), taskToAddFile);
+        }
+
+        /// <summary>
+        /// Upload image of a multipage document to server.
+        /// </summary>
+        /// <param name="inputStream">Image stream to process</param>
+        /// <param name="taskToAddFile">Id of multipage document. If null, a new document is created</param>
+        /// <returns>Id of document to which image was added</returns>
+        public Task UploadAndAddFileToTask(Stream inputStream, TaskId taskToAddFile)
+        {
+            return UploadAndAddFileToTask(toByteArray(inputStream), taskToAddFile);
+        }
+
+        /// <summary>
+        /// Upload image of a multipage document to server.
+        /// </summary>
+        /// <param name="input">Byte array to process</param>
+        /// <param name="taskToAddFile">Id of multipage document. If null, a new document is created</param>
+        /// <returns>Id of document to which image was added</returns>
+        public Task UploadAndAddFileToTask(byte[] input, TaskId taskToAddFile)
+        {
+            string url = String.Format("{0}/submitImage", ServerUrl);
             if (taskToAddFile != null)
                 url = url + "?taskId=" + Uri.EscapeDataString(taskToAddFile.ToString());
 
             // Build post request
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(filePath, request);
+            writeFileToRequest(input, request);
 
             XDocument response = performRequest(request);
             Task task = ServerXml.GetTaskStatus(response);
@@ -338,12 +372,32 @@ namespace Abbyy.CloudOcrSdk
         /// <returns>Id of created task</returns>
         public Task ProcessTextField(string filePath, TextFieldProcessingSettings settings)
         {
+            return ProcessTextField(File.ReadAllBytes(filePath), settings);
+        }
+
+        /// <summary>
+        /// Perform text recognition of a field
+        /// Throws an exception if something goes wrong
+        /// </summary>
+        /// <returns>Id of created task</returns>
+        public Task ProcessTextField(Stream inputStream, TextFieldProcessingSettings settings)
+        {
+            return ProcessTextField(toByteArray(inputStream), settings);
+        }
+
+        /// <summary>
+        /// Perform text recognition of a field
+        /// Throws an exception if something goes wrong
+        /// </summary>
+        /// <returns>Id of created task</returns>
+        public Task ProcessTextField(byte[] input, TextFieldProcessingSettings settings)
+        {
             string url = String.Format("{0}/processTextField{1}", ServerUrl, settings.AsUrlParams);
 
             // Build post request
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(filePath, request);
+            writeFileToRequest(input, request);
 
             XDocument response = performRequest(request);
             Task task = ServerXml.GetTaskStatus(response);
@@ -358,12 +412,32 @@ namespace Abbyy.CloudOcrSdk
         /// <returns>Id of created task</returns>
         public Task ProcessBarcodeField(string filePath, BarcodeFieldProcessingSettings settings)
         {
+            return ProcessBarcodeField(File.ReadAllBytes(filePath), settings);
+        }
+
+        /// <summary>
+        /// Perform barcode recognition of a field
+        /// Throws an exception if something goes wrong
+        /// </summary>
+        /// <returns>Id of created task</returns>
+        public Task ProcessBarcodeField(Stream inputStream, BarcodeFieldProcessingSettings settings)
+        {
+            return ProcessBarcodeField(toByteArray(inputStream), settings);
+        }
+
+        /// <summary>
+        /// Perform barcode recognition of a field
+        /// Throws an exception if something goes wrong
+        /// </summary>
+        /// <returns>Id of created task</returns>
+        public Task ProcessBarcodeField(byte[] input, BarcodeFieldProcessingSettings settings)
+        {
             string url = String.Format("{0}/processBarcodeField{1}", ServerUrl, settings.AsUrlParams);
 
             // Build post request
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(filePath, request);
+            writeFileToRequest(input, request);
 
             XDocument response = performRequest(request);
             Task task = ServerXml.GetTaskStatus(response);
@@ -373,12 +447,22 @@ namespace Abbyy.CloudOcrSdk
 
         public Task ProcessCheckmarkField(string filePath, CheckmarkFieldProcessingSettings settings)
         {
+            return ProcessCheckmarkField(File.ReadAllBytes(filePath), settings);
+        }
+
+        public Task ProcessCheckmarkField(Stream inputStream, CheckmarkFieldProcessingSettings settings)
+        {
+            return ProcessCheckmarkField(toByteArray(inputStream), settings);
+        }
+
+        public Task ProcessCheckmarkField(byte[] input, CheckmarkFieldProcessingSettings settings)
+        {
             string url = String.Format("{0}/processCheckmarkField{1}", ServerUrl, settings.AsUrlParams);
 
             // Build post request
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(filePath, request);
+            writeFileToRequest(input, request);
 
             XDocument response = performRequest(request);
             Task task = ServerXml.GetTaskStatus(response);
@@ -388,12 +472,22 @@ namespace Abbyy.CloudOcrSdk
 
         public Task ProcessBusinessCard(string filePath, BusCardProcessingSettings settings)
         {
+            return ProcessBusinessCard(File.ReadAllBytes(filePath), settings);
+        }
+
+        public Task ProcessBusinessCard(Stream inputStream, BusCardProcessingSettings settings)
+        {
+            return ProcessBusinessCard(toByteArray(inputStream), settings);
+        }
+
+        public Task ProcessBusinessCard(byte[] input, BusCardProcessingSettings settings)
+        {
             string url = String.Format("{0}/processBusinessCard?{1}", ServerUrl, settings.AsUrlParams);
 
             // Build post request
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(filePath, request);
+            writeFileToRequest(input, request);
 
             XDocument response = performRequest(request);
             Task serverTask = ServerXml.GetTaskStatus(response);
@@ -407,14 +501,32 @@ namespace Abbyy.CloudOcrSdk
         /// <param name="settingsPath">Path to file with xml processing settings.</param>
         public Task ProcessFields(Task task, string settingsPath)
         {
-            if (!File.Exists(settingsPath))
-                throw new FileNotFoundException("Settings file doesn't exist.", settingsPath);
+            return ProcessFields(task, File.ReadAllBytes(settingsPath));
+        }
+
+        /// <summary>
+        /// Perform fields recognition of uploaded document.
+        /// </summary>
+        /// <param name="task">Task created by UploadAndAddFileToTask method</param>
+        /// <param name="xmlSettings">Xml processing settings.</param>
+        public Task ProcessFields(Task task, Stream xmlSettings)
+        {
+            return ProcessFields(task, toByteArray(xmlSettings));
+        }
+
+        /// <summary>
+        /// Perform fields recognition of uploaded document.
+        /// </summary>
+        /// <param name="task">Task created by UploadAndAddFileToTask method</param>
+        /// <param name="xmlSettings">Xml processing settings.</param>
+        public Task ProcessFields(Task task, byte[] xmlSettings)
+        {
 
             string url = String.Format("{0}/processFields?taskId={1}", ServerUrl, task.Id);
 
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(settingsPath, request);
+            writeFileToRequest(xmlSettings, request);
 
             XDocument response = performRequest(request);
             Task result = ServerXml.GetTaskStatus(response);
@@ -427,10 +539,26 @@ namespace Abbyy.CloudOcrSdk
         /// </summary>
         public Task ProcessMrz(string filePath)
         {
+            return ProcessMrz(File.ReadAllBytes(filePath));
+        }
+
+        /// <summary>
+        /// Recognize Machine-Readable Zone of an official document (Passport, ID, Visa etc)
+        /// </summary>
+        public Task ProcessMrz(Stream inputStream)
+        {
+            return ProcessMrz(toByteArray(inputStream));
+        }
+
+        /// <summary>
+        /// Recognize Machine-Readable Zone of an official document (Passport, ID, Visa etc)
+        /// </summary>
+        public Task ProcessMrz(byte[] input)
+        {
             string url = String.Format("{0}/processMRZ", ServerUrl);
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(filePath, request);
+            writeFileToRequest(input, request);
 
             XDocument response = performRequest(request);
             Task serverTask = ServerXml.GetTaskStatus(response);
@@ -439,42 +567,27 @@ namespace Abbyy.CloudOcrSdk
 
         public Task CaptureData(string filePath, string templateName)
         {
+            return CaptureData(File.ReadAllBytes(filePath), templateName);
+        }
+
+        public Task CaptureData(Stream inputStream, string templateName)
+        {
+            return CaptureData(toByteArray(inputStream), templateName);
+        }
+
+        public Task CaptureData(byte[] input, string templateName)
+        {
             string url = String.Format("{0}/captureData?template={1}", ServerUrl, templateName);
 
             // Build post request
             WebRequest request = WebRequest.Create(url);
             setupPostRequest(url, request);
-            writeFileToRequest(filePath, request);
+            writeFileToRequest(input, request);
 
             XDocument response = performRequest(request);
             Task serverTask = ServerXml.GetTaskStatus(response);
+
             return serverTask;
-        }
-       
-
-        public void DownloadUrl(string url, string outputFile)
-        {
-            try
-            {
-                WebRequest request = WebRequest.Create(url);
-                setupGetRequest(url, request);
-
-                using (HttpWebResponse result = (HttpWebResponse) request.GetResponse())
-                {
-                    using (Stream stream = result.GetResponseStream())
-                    {
-                        // Write result directly to file
-                        using (Stream file = File.OpenWrite(outputFile))
-                        {
-                            copyStream(stream, file);
-                        }
-                    }
-                }
-            }
-            catch (System.Net.WebException e)
-            {
-                throw new ProcessingErrorException(e.Message, e);
-            }
         }
 
         /// <summary>
@@ -484,24 +597,17 @@ namespace Abbyy.CloudOcrSdk
         /// <param name="outputFile">Path to save a file</param>
         public void DownloadResult(Task task, string outputFile)
         {
-            if (task.Status != TaskStatus.Completed)
-            {
-                throw new ArgumentException("Cannot download result for not completed task");
-            }
-
             try
             {
+
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
 
-               
-                if (task.DownloadUrls == null || task.DownloadUrls.Count == 0)
+                using (MemoryStream ms = (MemoryStream) DownloadResult(task))
                 {
-                    throw new ArgumentException("Cannot download task without download url");
+                    File.WriteAllBytes(outputFile, ms.ToArray());
                 }
 
-                string url = task.DownloadUrls[0];
-                DownloadUrl(url, outputFile);
             }
             catch (System.Net.WebException e)
             {
@@ -510,14 +616,27 @@ namespace Abbyy.CloudOcrSdk
         }
 
         /// <summary>
-        /// Download task that has finished processing and save it to a stream
+        /// Download task that has finished processing and 
+        /// return result as stream
         /// </summary>
         /// <param name="task">Id of a task</param>
-        /// <param name="outputFile">Output stream</param>
-        public Stream DownloadUrl(string url, Stream outputStream)
+        public Stream DownloadResult(Task task)
         {
+            if (task.Status != TaskStatus.Completed)
+            {
+                throw new ArgumentException("Cannot download result for not completed task");
+            }
+
             try
             {
+
+                if (task.DownloadUrls == null || task.DownloadUrls.Count == 0)
+                {
+                    throw new ArgumentException("Cannot download task without download url");
+                }
+
+                string url = task.DownloadUrls[0];
+
                 WebRequest request = WebRequest.Create(url);
                 setupGetRequest(url, request);
 
@@ -525,11 +644,13 @@ namespace Abbyy.CloudOcrSdk
                 {
                     return result.GetResponseStream();
                 }
+
             }
             catch (System.Net.WebException e)
             {
                 throw new ProcessingErrorException(e.Message, e);
             }
+
         }
 
         public Task GetTaskStatus(TaskId task)
@@ -626,13 +747,61 @@ namespace Abbyy.CloudOcrSdk
 
         #region Request management functions
 
-        private static void copyStream(Stream input, Stream output)
+        internal static byte[] toByteArray(Stream stream)
         {
-            byte[] buffer = new byte[8 * 1024];
-            int len;
-            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
+            var memoryStream = stream as MemoryStream;
+            if (memoryStream != null)
             {
-                output.Write(buffer, 0, len);
+                return memoryStream.ToArray();
+            }
+
+            long originalPosition = 0;
+
+            if (stream.CanSeek)
+            {
+                originalPosition = stream.Position;
+                stream.Position = 0;
+            }
+
+            try
+            {
+                byte[] readBuffer = new byte[4096];
+
+                int totalBytesRead = 0;
+                int bytesRead;
+
+                while ((bytesRead = stream.Read(readBuffer, totalBytesRead, readBuffer.Length - totalBytesRead)) > 0)
+                {
+                    totalBytesRead += bytesRead;
+
+                    if (totalBytesRead == readBuffer.Length)
+                    {
+                        int nextByte = stream.ReadByte();
+                        if (nextByte != -1)
+                        {
+                            byte[] temp = new byte[readBuffer.Length * 2];
+                            Buffer.BlockCopy(readBuffer, 0, temp, 0, readBuffer.Length);
+                            Buffer.SetByte(temp, totalBytesRead, (byte)nextByte);
+                            readBuffer = temp;
+                            totalBytesRead++;
+                        }
+                    }
+                }
+
+                byte[] buffer = readBuffer;
+                if (readBuffer.Length != totalBytesRead)
+                {
+                    buffer = new byte[totalBytesRead];
+                    Buffer.BlockCopy(readBuffer, 0, buffer, 0, totalBytesRead);
+                }
+                return buffer;
+            }
+            finally
+            {
+                if (stream.CanSeek)
+                {
+                    stream.Position = originalPosition;
+                }
             }
         }
 
@@ -675,24 +844,12 @@ namespace Abbyy.CloudOcrSdk
             request.Method = "GET";
         }
 
-        private void writeFileToRequest(string filePath, WebRequest request)
-        {
-            writeFileToRequest(File.ReadAllBytes(filePath), request);
-        }
-
         private void writeFileToRequest(byte[] content, WebRequest request)
         {
             using (Stream stream = request.GetRequestStream())
             {
                 stream.Write(content, 0, content.Length);
             }
-        }
-
-        private void writeFileToRequest(Stream stream, WebRequest request)
-        {
-            byte[] bytes = new byte[stream.Length];
-            stream.Write(bytes, 0, (int)stream.Length);
-            writeFileToRequest(bytes, request);
         }
 
         #endregion
