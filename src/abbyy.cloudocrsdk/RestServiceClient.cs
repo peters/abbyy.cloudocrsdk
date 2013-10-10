@@ -205,7 +205,7 @@ namespace Abbyy.CloudOcrSdk
             {
                 var bytes = File.ReadAllBytes(filePath);
                 ms.Write(bytes, 0, bytes.Length);
-                ProcessImage(ms, settings);
+                return ProcessImage(ms, settings);
             }
         }
 
