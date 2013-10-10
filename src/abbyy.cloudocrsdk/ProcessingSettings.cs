@@ -30,6 +30,30 @@ namespace Abbyy.CloudOcrSdk
             Profile = Profile.documentConversion;
         }
 
+        public ProcessingSettings(OutputFormat outputFormat)
+            : this()
+        {
+            SetOutputFormat(outputFormat);
+        }
+
+        public ProcessingSettings(IEnumerable<OutputFormat> outputFormats)
+            : this()
+        {
+            SetOutputFormat(outputFormats);
+        }
+
+        public ProcessingSettings(RecognitionLanguage recognitionLanguage, OutputFormat outputFormat)
+        {
+            Language = recognitionLanguage;
+            SetOutputFormat(outputFormat);
+        }
+
+        public ProcessingSettings(RecognitionLanguage recognitionLanguage, IEnumerable<OutputFormat> outputFormats)
+        {
+            Language = recognitionLanguage;
+            SetOutputFormat(outputFormats);
+        }
+
         public RecognitionLanguage Language
         {
             set { _language = value.ToString(); }
