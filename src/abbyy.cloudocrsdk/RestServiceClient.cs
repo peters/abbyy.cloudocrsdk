@@ -201,7 +201,24 @@ namespace Abbyy.CloudOcrSdk
         /// <exception cref="ProcessingErrorException">thrown when something goes wrong</exception>
         public Task ProcessImage(string filePath, ProcessingSettings settings)
         {
-            string url = String.Format("{0}/processImage?{1}", ServerUrl,  settings.AsUrlParams);
+            using (var ms = new MemoryStream())
+            {
+                var bytes = File.ReadAllBytes(filePath);
+                ms.Write(bytes, 0, bytes.Length);
+                ProcessImage(ms, settings);
+            }
+        }
+
+        /// <summary>
+        /// Upload a file to service synchronously and start processing
+        /// </summary>
+        /// <param name="inputStream">Stream to process</param>
+        /// <param name="settings">Language and output format</param>
+        /// <returns>Id of the task. Check task status to see if you have enough units to process the task</returns>
+        /// <exception cref="ProcessingErrorException">thrown when something goes wrong</exception>
+        public Task ProcessImage(Stream inputStream, ProcessingSettings settings)
+        {
+            string url = String.Format("{0}/processImage?{1}", ServerUrl, settings.AsUrlParams);
 
             if (!String.IsNullOrEmpty(settings.Description))
             {
@@ -213,21 +230,21 @@ namespace Abbyy.CloudOcrSdk
                 // Build post request
                 WebRequest request = WebRequest.Create(url);
                 setupPostRequest(url, request);
-                writeFileToRequest(filePath, request);
+                writeFileToRequest(inputStream, request);
 
                 XDocument response = performRequest(request);
                 Task task = ServerXml.GetTaskStatus(response);
 
                 return task;
             }
-            catch (System.Net.WebException e )
+            catch (System.Net.WebException e)
             {
-                String friendlyMessage = retrieveFriendlyMessage( e );
-				if (friendlyMessage != null)
-				{
-					throw new ProcessingErrorException(friendlyMessage, e);
-				}
-				throw new ProcessingErrorException("Cannot upload file", e);
+                String friendlyMessage = retrieveFriendlyMessage(e);
+                if (friendlyMessage != null)
+                {
+                    throw new ProcessingErrorException(friendlyMessage, e);
+                }
+                throw new ProcessingErrorException("Cannot upload file", e);
             }
         }
 
