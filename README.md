@@ -1,4 +1,4 @@
 Abbyy Ocr Cloud Sdk
 ==============================
 
-Mirror of http://ocrsdk.com/documentation/quick-start/cs/
+.NET Framework for working with Abbyy Ocr in the cloud.
