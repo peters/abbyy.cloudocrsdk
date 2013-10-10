@@ -590,30 +590,6 @@ namespace Abbyy.CloudOcrSdk
             return serverTask;
         }
 
-        /// <summary>
-        /// Download task that has finished processing and save it to given path
-        /// </summary>
-        /// <param name="task">Id of a task</param>
-        /// <param name="outputFile">Path to save a file</param>
-        public void DownloadResult(Task task, string outputFile)
-        {
-            try
-            {
-
-                if (File.Exists(outputFile))
-                    File.Delete(outputFile);
-
-                using (MemoryStream ms = (MemoryStream) DownloadResult(task))
-                {
-                    File.WriteAllBytes(outputFile, ms.ToArray());
-                }
-
-            }
-            catch (System.Net.WebException e)
-            {
-                throw new ProcessingErrorException(e.Message, e);
-            }
-        }
 
         /// <summary>
         /// Download task that has finished processing and 
@@ -651,6 +627,73 @@ namespace Abbyy.CloudOcrSdk
                 throw new ProcessingErrorException(e.Message, e);
             }
 
+        }
+
+        /// <summary>
+        /// Download task that has finished processing and save it to given path
+        /// </summary>
+        /// <param name="task">Id of a task</param>
+        /// <param name="outputFile">Path to save a file</param>
+        public void DownloadResult(Task task, string outputFile)
+        {
+            try
+            {
+
+                if (File.Exists(outputFile))
+                    File.Delete(outputFile);
+
+                using (MemoryStream ms = (MemoryStream) DownloadResult(task))
+                {
+                    File.WriteAllBytes(outputFile, ms.ToArray());
+                }
+
+            }
+            catch (System.Net.WebException e)
+            {
+                throw new ProcessingErrorException(e.Message, e);
+            }
+        }
+
+        public void DownloadUrl(string url, string outputFile)
+        {
+            try
+            {
+                WebRequest request = WebRequest.Create(url);
+                setupGetRequest(url, request);
+
+                using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
+                {
+                    using (Stream stream = result.GetResponseStream())
+                    {
+                        File.WriteAllBytes(outputFile, toByteArray(stream));
+                    }
+                }
+            }
+            catch (System.Net.WebException e)
+            {
+                throw new ProcessingErrorException(e.Message, e);
+            }
+        }
+
+        public Stream DownloadUrl(string url)
+        {
+            try
+            {
+                WebRequest request = WebRequest.Create(url);
+                setupGetRequest(url, request);
+
+                using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
+                {
+                    using (Stream stream = result.GetResponseStream())
+                    {
+                        return stream;
+                    }
+                }
+            }
+            catch (System.Net.WebException e)
+            {
+                throw new ProcessingErrorException(e.Message, e);
+            }
         }
 
         public Task GetTaskStatus(TaskId task)
