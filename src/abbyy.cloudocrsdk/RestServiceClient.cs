@@ -684,10 +684,7 @@ namespace Abbyy.CloudOcrSdk
 
                 using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
                 {
-                    using (Stream stream = result.GetResponseStream())
-                    {
-                        return stream;
-                    }
+                    return result.GetResponseStream();
                 }
             }
             catch (System.Net.WebException e)
