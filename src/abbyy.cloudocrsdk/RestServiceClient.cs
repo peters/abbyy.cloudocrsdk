@@ -18,6 +18,28 @@ namespace Abbyy.CloudOcrSdk
         }
     }
 
+
+    public enum ApplicationType
+    {
+        Normal,
+    	ForSerialNumbers,
+    	SerialNumber,
+    	Mobile,
+    	MobileInstallation,
+    	Azure,
+    	DataCapture,
+    }
+
+    public class ApplicationInfo
+    {
+        public string Name { get; set; }
+        public int Pages { get; set; }
+        public int Fields { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime Expires { get; set; }
+        public ApplicationType Type { get; set; }
+    }
+
     public class Task
     {
         public TaskId Id;
@@ -783,6 +805,27 @@ namespace Abbyy.CloudOcrSdk
             string installationId = response.Root.Elements().First().Value;
 
             return installationId;
+        }
+
+        public ApplicationInfo GetApplicationInfo()
+        {
+            string url = String.Format("{0}/getApplicationInfo", ServerUrl);
+
+            WebRequest request = WebRequest.Create(url);
+            setupPostRequest(url, request);
+            
+            XDocument response = performRequest(request);
+            XElement applicationElement = response.Root.Element("application");
+
+            return new ApplicationInfo
+            {
+                Name = applicationElement.Attribute("name").Value,
+                Pages = Convert.ToInt32(applicationElement.Attribute("pages").Value),
+                Fields = Convert.ToInt32(applicationElement.Attribute("fields").Value),
+                Created = DateTime.Parse(applicationElement.Attribute("created").Value),
+                Expires = DateTime.Parse(applicationElement.Attribute("expires").Value),
+                Type = (ApplicationType) Enum.Parse(typeof (ApplicationType), applicationElement.Attribute("type").Value)
+            };
         }
 
         #region Request management functions
