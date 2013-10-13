@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Abbyy.CloudOcrSdk
 {
@@ -22,21 +23,34 @@ namespace Abbyy.CloudOcrSdk
     public enum ApplicationType
     {
         Normal,
-    	ForSerialNumbers,
-    	SerialNumber,
-    	Mobile,
-    	MobileInstallation,
-    	Azure,
-    	DataCapture,
+        ForSerialNumbers,
+        SerialNumber,
+        Mobile,
+        MobileInstallation,
+        Azure,
+        DataCapture,
     }
 
+    [XmlRoot("application", Namespace = "http://ocrsdk.com/schema/appInfo-1.0.xsd")]
     public class ApplicationInfo
     {
+        [XmlElement("name")]
         public string Name { get; set; }
+        [XmlElement("installationId")]
+        public string InstallationId { get; set; }
+        [XmlElement("pages")]
         public int Pages { get; set; }
+        [XmlElement("fields")]
         public int Fields { get; set; }
+        [XmlElement("installations")]
+        public int Installations { get; set; }
+        [XmlElement("documents")]
+        public int Documents { get; set; }
+        [XmlElement("created")]
         public DateTime Created { get; set; }
+        [XmlElement("expires")]
         public DateTime Expires { get; set; }
+        [XmlElement("type")]
         public ApplicationType Type { get; set; }
     }
 
@@ -812,20 +826,11 @@ namespace Abbyy.CloudOcrSdk
             string url = String.Format("{0}/getApplicationInfo", ServerUrl);
 
             WebRequest request = WebRequest.Create(url);
-            setupPostRequest(url, request);
-            
-            XDocument response = performRequest(request);
-            XElement applicationElement = response.Root.Element("application");
+            setupGetRequest(url, request);
 
-            return new ApplicationInfo
-            {
-                Name = applicationElement.Attribute("name").Value,
-                Pages = Convert.ToInt32(applicationElement.Attribute("pages").Value),
-                Fields = Convert.ToInt32(applicationElement.Attribute("fields").Value),
-                Created = DateTime.Parse(applicationElement.Attribute("created").Value),
-                Expires = DateTime.Parse(applicationElement.Attribute("expires").Value),
-                Type = (ApplicationType) Enum.Parse(typeof (ApplicationType), applicationElement.Attribute("type").Value)
-            };
+            return performRequest<ApplicationInfo>(request, xDocument => 
+                xDocument.Elements().FirstOrDefault().CreateReader());
+
         }
 
         #region Request management functions
@@ -895,6 +900,21 @@ namespace Abbyy.CloudOcrSdk
                 using (Stream stream = result.GetResponseStream())
                 {
                     return XDocument.Load( new XmlTextReader( stream ) );
+                }
+            }
+        }
+
+        private static T performRequest<T>(WebRequest request, Func<XElement, XmlReader> xmlFunc)
+        {
+            using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = result.GetResponseStream())
+            using (XmlTextReader reader = new XmlTextReader(stream))
+            {
+                XElement xDocument = XElement.Load(reader);
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                using (XmlReader xDocumentReader = xmlFunc(xDocument))
+                {
+                    return (T)serializer.Deserialize(xmlFunc(xDocument));
                 }
             }
         }
