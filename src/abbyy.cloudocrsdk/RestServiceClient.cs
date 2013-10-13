@@ -915,6 +915,7 @@ namespace Abbyy.CloudOcrSdk
                 using (XmlReader xDocumentReader = xmlFunc(xDocument))
                 {
                     return (T)serializer.Deserialize(xmlFunc(xDocument));
+                    return (T)serializer.Deserialize(xDocumentReader);
                 }
             }
         }
