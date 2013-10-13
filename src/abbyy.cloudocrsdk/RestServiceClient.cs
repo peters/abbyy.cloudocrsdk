@@ -812,13 +812,12 @@ namespace Abbyy.CloudOcrSdk
         public string ActivateNewInstallation(string deviceId)
         {
             string url = String.Format("{0}/activateNewInstallation?deviceId={1}", ServerUrl, Uri.EscapeDataString(deviceId));
+
             WebRequest request = WebRequest.Create(url);
             setupGetRequest(url, request);
 
-            XDocument response = performRequest(request);
-            string installationId = response.Root.Elements().First().Value;
-
-            return installationId;
+            return performRequest<string>(request, 
+                response => response.Elements().FirstOrDefault().Value);
         }
 
         public ApplicationInfo GetApplicationInfo()
@@ -914,9 +913,19 @@ namespace Abbyy.CloudOcrSdk
                 XmlSerializer serializer = new XmlSerializer(typeof(T));
                 using (XmlReader xDocumentReader = xmlFunc(xDocument))
                 {
-                    return (T)serializer.Deserialize(xmlFunc(xDocument));
                     return (T)serializer.Deserialize(xDocumentReader);
                 }
+            }
+        }
+
+        private static T performRequest<T>(WebRequest request, Func<XElement, T> xmlFunc)
+        {
+            using (HttpWebResponse result = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = result.GetResponseStream())
+            using (XmlTextReader reader = new XmlTextReader(stream))
+            {
+                XElement xDocument = XElement.Load(reader);
+                return xmlFunc(xDocument);
             }
         }
 
