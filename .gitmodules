@@ -1,0 +1,3 @@
+[submodule "src/ocrsdk.com"]
+	path = src/ocrsdk.com
+	url = https://github.com/abbyysdk/ocrsdk.com.git
