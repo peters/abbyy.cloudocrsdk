@@ -6,7 +6,8 @@ param(
         "v3.5", 
         "v4.0",
         "v4.5", 
-        "v4.5.1"
+        "v4.5.1",
+		"v4.6"
     ),
     [string]$packageVersion = $null,
     [string]$config = "Release",
@@ -28,8 +29,8 @@ $packageVersion = MyGet-Package-Version $packageVersion
 $nugetExe = MyGet-NugetExe-Path
 
 # Project
-$project = "$rootFolder\src\abbyy.cloudocrsdk\Abbyy.CloudOcrSdk.csproj"
-$nuspec = Join-Path $rootFolder "src\abbyy.cloudocrsdk\Abbyy.CloudOcrSdk.nuspec"
+$project = "$rootFolder\src\ocrsdk.com\dotNet\dotNetWrapper\Abbyy.CloudOcrSdk.csproj"
+$nuspec = Join-Path $rootFolder "Abbyy.CloudOcrSdk.nuspec"
 
 if($clean) { MyGet-Build-Clean $rootFolder }
 
@@ -53,7 +54,8 @@ $platforms | ForEach-Object {
         -project $project `
         -config $config `
         -version $packageVersion `
-        -platform $platform
+        -platform $platform `
+		-nuspec $nuspec
 
 }
 

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>AbbyyOnlineSdk</id>
+    <version>$version$</version>
+    <title>AbbyyOnlineSdk for .NET</title>
+    <authors>Abbyy</authors>
+    <owners>Abbyy</owners>
+    <projectUrl>http://ocrsdk.com/documentation/quick-start/cs/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ABBYY's world-famous recognition and best conversion technologies provide up to 99.8% recognition accuracy</description>
+    <copyright>Copyright 2015 Abbyy</copyright>
+    <tags>Abbyy Cloud Ocr Sdk</tags>
+  </metadata>
+  <files>
+	 <file src="$outputfolder$\v3.5\AbbyyOnlineSdk.dll" target="lib\net35" />
+	 <file src="$outputfolder$\v4.0\AbbyyOnlineSdk.dll" target="lib\net40" />
+	 <file src="$outputfolder$\v4.5\AbbyyOnlineSdk.dll" target="lib\net45" />
+	 <file src="$outputfolder$\v4.5.1\AbbyyOnlineSdk.dll" target="lib\net451" />
+  </files>
+</package>
